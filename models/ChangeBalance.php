@@ -10,6 +10,7 @@ namespace app\models;
 
 
 
+use app\events\MyEvent;
 use app\job\ListenInvoices;
 use Yii;
 use yii\helpers\ArrayHelper;
@@ -38,9 +39,7 @@ class ChangeBalance extends ActiveRecord
             [self::F_BALANCE_AMOUNT, 'number', 'min' => 0]
         ];
     }
-
-
-    /**
+        /**
      * Выполнение операции изменения баланса
      *
      * @throws \Exception
@@ -70,6 +69,10 @@ class ChangeBalance extends ActiveRecord
 
             $this->setQueue($invoice->id);
 
+
+            // Какое то событие
+            $this->on('some_event', [new MyEvent, 'loadPaymentEventHendler']);
+
             return true;
         }
         catch (\Exception $e)
@@ -80,9 +83,6 @@ class ChangeBalance extends ActiveRecord
         }
 
     }
-
-
-
 
     /**
      * Получение списка пользователей
