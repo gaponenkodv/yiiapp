@@ -15,7 +15,7 @@ class m180627_134616_create_balances extends Migration
     {
         $this->createTable('balances', [
            'id' => $this->primaryKey(),
-           'balance'=> $this->money(8,2)->defaultValue(0)
+           'balance'=> $this->money()->defaultValue(0)
         ]);
     }
 

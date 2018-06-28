@@ -56,4 +56,9 @@ class Users extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Balances::className(), ['id' => 'balance_id']);
     }
+
+    public function getUsers()
+    {
+
+    }
 }

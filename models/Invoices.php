@@ -11,6 +11,7 @@ use Yii;
  * @property int $balance_from
  * @property int $balance_to
  * @property int $status
+ * @property number $amount
  * @property string $ts_create
  * @property string $ts_updated
  *
@@ -38,6 +39,7 @@ class Invoices extends \yii\db\ActiveRecord
             [['ts_create', 'ts_updated'], 'safe'],
             [['balance_from'], 'exist', 'skipOnError' => true, 'targetClass' => Balances::className(), 'targetAttribute' => ['balance_from' => 'id']],
             [['balance_to'], 'exist', 'skipOnError' => true, 'targetClass' => Balances::className(), 'targetAttribute' => ['balance_to' => 'id']],
+            [['amount'], 'number']
         ];
     }
 
@@ -51,6 +53,7 @@ class Invoices extends \yii\db\ActiveRecord
             'balance_from' => 'Balance From',
             'balance_to' => 'Balance To',
             'status' => 'Status',
+            'amount' => 'Amount',
             'ts_create' => 'Ts Create',
             'ts_updated' => 'Ts Updated',
         ];

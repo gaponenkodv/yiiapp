@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\ListenInvoices;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -124,5 +125,23 @@ class SiteController extends Controller
     public function actionAbout()
     {
         return $this->render('about');
+    }
+
+    public function actionRun()
+    {
+
+
+        echo Yii::$app->queue->delay(10)->push(new ListenInvoices([
+            'invoice' => 1
+        ]))
+            ? 'ok'
+            : 'error';
+
+        $cache = Yii::$app->redis;
+
+        $cache->set(11,22);
+        echo ' ! ' . $cache->get(11);
+
+        die;
     }
 }

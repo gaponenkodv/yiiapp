@@ -8,7 +8,7 @@ use Yii;
  * This is the model class for table "balances".
  *
  * @property int $id
- * @property string $balance
+ * @property float $balance
  *
  * @property Invoices[] $invoices
  * @property Invoices[] $invoices0
@@ -48,7 +48,7 @@ class Balances extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getInvoices()
+    public function getInvoicesFrom()
     {
         return $this->hasMany(Invoices::className(), ['balance_from' => 'id']);
     }
@@ -56,7 +56,7 @@ class Balances extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getInvoices0()
+    public function getInvoicesTo()
     {
         return $this->hasMany(Invoices::className(), ['balance_to' => 'id']);
     }
