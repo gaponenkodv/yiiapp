@@ -2,13 +2,11 @@
 
 namespace app\job;
 
-use app\events\MyEvent;
 use app\models\Balances;
 use app\models\ChangeBalance;
 use app\models\Invoices;
 use Yii;
 use yii\base\BaseObject;
-use yii\base\Event;
 use yii\queue\JobInterface;
 use yii\queue\Queue;
 
@@ -30,13 +28,13 @@ class ListenInvoices extends BaseObject implements JobInterface
          * вообще проще не передавать значение инвойса, а идти исключительно по возрастанию и статусу
          */
         $invoice = isset($this->invoice)
-            ? Invoices::findOne(['id' => $this->invoice])
+            ? Invoices::findOne(['id' => $this->invoice, 'status' => ChangeBalance::STATUS_CREATED])
             : Invoices::find()
                 ->where(['status' => ChangeBalance::STATUS_CREATED])
                 ->orderBy(['id' => SORT_ASC])
                 ->one();
 
-        if(Yii::$app->cache->add(md5(self::className() . __METHOD__ . $invoice->id), '', 60))
+        if(!empty($invoice) && Yii::$app->cache->add(md5(self::className() . __METHOD__ . $invoice->id), '', 60))
         {
             /** Если указан 0 в качестве принимающей стороны, сразу выставляется статус "оплачено",
              * так как там нет работы с другим балансом

@@ -8,8 +8,6 @@
 
 namespace app\models;
 
-
-
 use app\events\MyEvent;
 use app\job\ListenInvoices;
 use Yii;
@@ -81,7 +79,6 @@ class ChangeBalance extends ActiveRecord
             $transaction->rollBack();
             throw $e;
         }
-
     }
 
     /**
