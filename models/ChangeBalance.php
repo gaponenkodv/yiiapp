@@ -22,6 +22,7 @@ class ChangeBalance extends ActiveRecord
     const STATUS_PROCESSING = 1;
     const STATUS_PAID = 2;
     const STATUS_CANCELED = 3;
+    const STATUS_UNDEFINED = 4;
 
     const F_BALANCE_FROM = 'balanceFrom';
     const F_BALANCE_TO = 'balanceTo';

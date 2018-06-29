@@ -64,6 +64,13 @@ class ListenInvoices extends BaseObject implements JobInterface
             catch (\Exception $e)
             {
                 $transaction->rollBack();
+
+                /**
+                 * Ставим статус инвойса невыясненным для ручной
+                 * обработкиб ситуации бывают разными и решения для них тоже
+                 */
+                $invoice->status = ChangeBalance::STATUS_UNDEFINED;
+                $invoice->save();
             }
         }
 
