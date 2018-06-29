@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: gaponenko
- * Date: 28.06.2018
- * Time: 13:24
- */
 
 namespace app\models;
 
@@ -19,6 +13,7 @@ class ChangeBalance extends ActiveRecord
     public $balanceFrom;
     public $balanceTo;
     public $amount;
+    public $hash;
 
     protected $invoiceId;
     protected $queueId;
@@ -31,16 +26,18 @@ class ChangeBalance extends ActiveRecord
     const F_BALANCE_FROM = 'balanceFrom';
     const F_BALANCE_TO = 'balanceTo';
     const F_BALANCE_AMOUNT = 'amount';
+    const F_HASH = 'hash';
 
     public function rules()
     {
         return [
             [[self::F_BALANCE_FROM, self::F_BALANCE_TO, self::F_BALANCE_AMOUNT], 'number'],
-            [[self::F_BALANCE_FROM, self::F_BALANCE_TO, self::F_BALANCE_AMOUNT], 'required'],
+            [[self::F_BALANCE_FROM, self::F_BALANCE_TO, self::F_BALANCE_AMOUNT, self::F_HASH], 'required'],
             [self::F_BALANCE_AMOUNT, 'number', 'min' => 0]
         ];
     }
-        /**
+
+    /**
      * Выполнение операции изменения баланса
      *
      * @throws \Exception
@@ -50,12 +47,11 @@ class ChangeBalance extends ActiveRecord
         $connection = Yii::$app->db;
         $transaction = $connection->beginTransaction();
 
-        try{
+        try
+        {
             $balance = $this->getBalance();
 
             $this->checkBalance($balance);
-
-            $balance->balance = $balance->balance - $this->amount;
 
             $invoice = new Invoices();
             $invoice->balance_from = $this->balanceFrom;
@@ -63,7 +59,16 @@ class ChangeBalance extends ActiveRecord
             $invoice->status = self::STATUS_CREATED;
             $invoice->amount = $this->amount;
 
-            $balance->save();
+            /**
+             * Нулевое значение это что то обезличенное для
+             * пополнения и списания платежей персонально со счета
+             */
+            if($this->balanceFrom != 0)
+            {
+                $balance->balance = $balance->balance - $this->amount;
+                $balance->save();
+            }
+
             $invoice->save();
 
             $this->invoiceId = $invoice->id;
@@ -79,7 +84,6 @@ class ChangeBalance extends ActiveRecord
         }
         catch (\Exception $e)
         {
-            Yii::debug($e->getMessage());
             $transaction->rollBack();
             throw $e;
         }
@@ -116,7 +120,7 @@ class ChangeBalance extends ActiveRecord
     }
 
     /**
-     * Получение номера в очереди
+     * Постановка в очереди
      *
      * @param integer $invoice Номер инвойса
      */

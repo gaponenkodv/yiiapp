@@ -12,5 +12,6 @@ use yii\widgets\ActiveForm;
 <?= $form->field($form_model, 'balanceTo')
     ->dropDownList($form_model->getBalances())?>
 <?= $form->field($form_model, 'amount') ?>
+<?= Html::activeHiddenInput($form_model, 'hash', ['value'=> uniqid()]) ?>
 <?= Html::submitButton('Отправить', ['class' => 'btn btn-success']) ?>
 <?php ActiveForm::end() ?>

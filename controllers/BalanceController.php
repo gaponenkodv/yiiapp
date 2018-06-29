@@ -28,6 +28,10 @@ class BalanceController extends Controller
         {
             try
             {
+                /** Защита от тех кто любит тыкать в кнопку по нескольку раз не дождавшись ответа */
+                if(!Yii::$app->cache->add(md5( __CLASS__ . $form_model->hash), '', 300))
+                    throw new \Exception('Повторная обработка формы, запрос уже в обработке');
+
                 return $this->render(
                     'result',
                     [

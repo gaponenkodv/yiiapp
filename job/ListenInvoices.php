@@ -12,7 +12,6 @@ use yii\queue\Queue;
 
 class ListenInvoices extends BaseObject implements JobInterface
 {
-
     public $invoice;
 
     /**
@@ -34,12 +33,12 @@ class ListenInvoices extends BaseObject implements JobInterface
                 ->orderBy(['id' => SORT_ASC])
                 ->one();
 
-        if(!empty($invoice) && Yii::$app->cache->add(md5(self::className() . __METHOD__ . $invoice->id), '', 60))
+        if(!empty($invoice) && Yii::$app->cache->add(md5(__CLASS__ . __METHOD__ . $invoice->id), '', 60))
         {
             /** Если указан 0 в качестве принимающей стороны, сразу выставляется статус "оплачено",
              * так как там нет работы с другим балансом
              */
-            $invoice->status = 0 == $invoice->balance_to
+            $invoice->status = (0 == $invoice->balance_to)
                 ? ChangeBalance::STATUS_PAID
                 : ChangeBalance::STATUS_PROCESSING;
 
@@ -48,8 +47,9 @@ class ListenInvoices extends BaseObject implements JobInterface
 
             $connection = Yii::$app->db;
             $transaction = $connection->beginTransaction();
-            try{
 
+            try
+            {
                 $balanceTo = Balances::findOne(['id' => $invoice->balance_to]);
                 $balanceTo->balance = $balanceTo->balance + $invoice->amount;
 
@@ -60,7 +60,6 @@ class ListenInvoices extends BaseObject implements JobInterface
                 $invoice->save();
 
                 $transaction->commit();
-
             }
             catch (\Exception $e)
             {
