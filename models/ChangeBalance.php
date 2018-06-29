@@ -20,6 +20,9 @@ class ChangeBalance extends ActiveRecord
     public $balanceTo;
     public $amount;
 
+    protected $invoiceId;
+    protected $queueId;
+
     const STATUS_CREATED = 0;
     const STATUS_PROCESSING = 1;
     const STATUS_PAID = 2;
@@ -63,10 +66,11 @@ class ChangeBalance extends ActiveRecord
             $balance->save();
             $invoice->save();
 
+            $this->invoiceId = $invoice->id;
+
             $transaction->commit();
 
             $this->setQueue($invoice->id);
-
 
             // Какое то событие
             $this->on('some_event', [new MyEvent, 'loadPaymentEventHendler']);
@@ -82,6 +86,26 @@ class ChangeBalance extends ActiveRecord
     }
 
     /**
+     * Получение номера вставленного инвойса
+     *
+     * @return integer
+     */
+    public function getInvoiceId()
+    {
+        return $this->invoiceId;
+    }
+
+    /**
+     * Получение номера в очереди(для тестов)
+     *
+     * @return mixed
+     */
+    public function getQueueId()
+    {
+        return $this->queueId;
+    }
+
+    /**
      * Получение списка пользователей
      *
      * @return array
@@ -92,11 +116,13 @@ class ChangeBalance extends ActiveRecord
     }
 
     /**
+     * Получение номера в очереди
+     *
      * @param integer $invoice Номер инвойса
      */
     protected function setQueue($invoice)
     {
-        Yii::$app->queue->push(new ListenInvoices([
+        $this->queueId = Yii::$app->queue->push(new ListenInvoices([
             'invoice' => $invoice
         ]));
     }
